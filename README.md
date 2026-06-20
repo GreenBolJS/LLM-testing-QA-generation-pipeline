@@ -14,11 +14,11 @@ Default target filing: Microsoft's FY2025 10-K (configurable in
 ## Quickstart
 
 ```bash
-git clone <this repo>
-cd caliper-qa-pipeline
+git clone https://github.com/GreenBolJS/LLM-testing-QA-generation-pipeline.git
+cd LLM-testing-QA-generation-pipeline
 pip install -r requirements.txt
 
-cp .env.example .env
+cp env.example .env
 # edit .env and fill in GROQ_API_KEY and HF_TOKEN
 
 export $(grep -v '^#' .env | xargs)   # or use python-dotenv / direnv
