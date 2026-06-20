@@ -1,0 +1,29 @@
+SYSTEM:
+You are generating evaluation questions from a 10-K filing excerpt for an AI benchmark.
+Only use information present in the provided passage(s). Do not use outside knowledge.
+
+USER:
+Section: {heading_path}
+Passage:
+"""
+{chunk_text}
+"""
+
+Generate exactly {n} question(s) of type: comparison.
+
+Definition:
+- comparison: contrasts two figures, periods, or segments. If the passage above
+  contains two distinct sections separated by "--- NEXT PASSAGE ---", you may compare
+  a figure from the first section against a figure from the second section (e.g. the
+  same line item across two adjacent fiscal years). Otherwise, contrast two figures
+  found within the single passage.
+
+Return ONLY valid JSON, no markdown fences:
+[
+  {{
+    "question": "...",
+    "answer": "...",
+    "source_passage": "<exact verbatim span(s) from the passage above, copy-pasted, not paraphrased>",
+    "question_type": "comparison"
+  }}
+]

@@ -1,0 +1,110 @@
+# config.yaml — single source of truth for model names, thresholds, and paths.
+# All src/ modules read from this file via src/config.py rather than hardcoding values.
+
+filing:
+  # Default target: Microsoft FY2025 10-K (used in the spec's example URL).
+  # Override per-run via CLI args in pipeline.py if you target a different filer.
+  ticker: "MSFT"
+  cik: "789019"
+  accession_number: "000095017025100235"
+  primary_document: "msft-20250630.htm"
+  fiscal_year: 2025
+  url: "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm"
+
+http:
+  # SEC requires a descriptive User-Agent identifying the requester.
+  # Replace the email before running against real EDGAR — SEC will rate-limit
+  # or block generic/missing User-Agents.
+  user_agent: "caliper-qa-pipeline research-use contact: replace-me@example.com"
+  request_timeout_s: 30
+  max_retries: 3
+  retry_backoff_base_s: 2
+
+chunking:
+  min_heading_words: 12          # headings must be shorter than this (in words)
+  min_chunk_tokens: 30           # chunks smaller than this get merged into a neighbor
+  max_chunk_tokens: 600          # narrative chunks are split if they exceed this
+  target_chunk_tokens: 500       # soft target when splitting long sections
+  # crude tokens-per-word approximation used since we avoid pulling in a tokenizer
+  # just for chunk sizing; good enough for boundary decisions, not for billing.
+  approx_tokens_per_word: 1.3
+
+embedding:
+  model_name: "BAAI/bge-small-en-v1.5"
+  device: "cpu"                  # set to "cuda" if a GPU is available locally
+  dedup_similarity_threshold: 0.90
+  batch_size: 32
+
+generation:
+  provider: "groq"
+  model_name: "llama-3.1-8b-instant"
+  api_base: "https://api.groq.com/openai/v1"
+  temperature: 0.2
+  max_tokens: 1500
+  verbatim_match_threshold: 0.90   # fuzzy match of source_passage vs. chunk text
+  question_types:
+    - "fact_extraction"
+    - "numeric_calculation"
+    - "comparison"
+    - "multi_step_reasoning"
+  # how many chunks to pass together for question types that benefit from
+  # contrasting two related chunks (e.g. adjacent fiscal-year rows)
+  multi_chunk_question_types:
+    - "comparison"
+    - "multi_step_reasoning"
+  multi_chunk_probability: 0.4     # fraction of comparison/multistep prompts using 2 chunks
+  questions_per_call: 2            # "n" in the generation prompt template
+  # Hard cap on passage size sent to Groq per call, in characters (~4 chars/token
+  # as a rough estimate). Some tables render to very large pipe-delimited text
+  # blocks (table_to_passage_text has no row limit) and can otherwise blow the
+  # free-tier TPM budget in a single call. Passages longer than this are
+  # truncated before being sent — truncation happens on a row/line boundary
+  # where possible, never mid-word, so the model still sees complete rows.
+  max_passage_chars: 3000
+  # Hard cap on TOTAL number of chunk-groups processed per question_type,
+  # across the whole filing. Per the spec, the deliverable only needs >=100
+  # final verified rows; generating against every single chunk (300-500+ per
+  # filing) produces thousands of candidates we don't need and burns through
+  # free-tier quota fast. Chunks are RANDOMLY SAMPLED down to this cap per
+  # question_type (see generator.py's _maybe_pair_chunks), not just the first
+  # N in document order, so the sample still spans the whole filing rather
+  # than skewing toward earlier sections.
+  max_chunk_groups_per_type: 40
+
+verification:
+  provider: "huggingface_inference_providers"
+  model_name: "google/gemma-3-27b-it"
+  hf_provider: "auto"               # "auto" lets HF route to a partner with free capacity
+  max_retries: 3
+  retry_backoff_base_s: 3
+  temperature: 0.0
+  max_tokens: 400
+  numeric_tolerance_pct: 1.0        # numeric_check.py tolerance for recomputed values
+  # final keep/discard requires (faithfulness OR numeric_check) AND a minimum
+  # context-recall embedding score — both signals are stored regardless of
+  # this threshold so stricter filtering is possible later without regenerating.
+  min_context_recall_score: 0.60
+
+difficulty:
+  easy:
+    question_types: ["fact_extraction"]
+    max_source_chunks: 1
+  medium:
+    question_types: ["numeric_calculation", "fact_extraction"]
+  hard:
+    question_types: ["multi_step_reasoning", "comparison"]
+    min_source_chunks: 2
+
+output:
+  format: "csv"                    # "csv" or "jsonl"
+  min_rows_required: 100
+  file_name: "msft_10k_2025_qa_dataset.csv"
+
+paths:
+  raw_dir: "data/raw"
+  chunks_dir: "data/chunks"
+  output_dir: "output"
+  prompts_dir: "prompts"
+
+logging:
+  level: "INFO"

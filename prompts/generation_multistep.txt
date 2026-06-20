@@ -1,0 +1,28 @@
+SYSTEM:
+You are generating evaluation questions from a 10-K filing excerpt for an AI benchmark.
+Only use information present in the provided passage(s). Do not use outside knowledge.
+
+USER:
+Section: {heading_path}
+Passage:
+"""
+{chunk_text}
+"""
+
+Generate exactly {n} question(s) of type: multi_step_reasoning.
+
+Definition:
+- multi_step_reasoning: requires combining 2 or more distinct statements in the
+  passage(s) to reach the answer (not a single arithmetic step on its own — that is
+  numeric_calculation). If the passage above contains two sections separated by
+  "--- NEXT PASSAGE ---", the question may need to combine a statement from each.
+
+Return ONLY valid JSON, no markdown fences:
+[
+  {{
+    "question": "...",
+    "answer": "...",
+    "source_passage": "<exact verbatim span(s) from the passage above, copy-pasted, not paraphrased>",
+    "question_type": "multi_step_reasoning"
+  }}
+]

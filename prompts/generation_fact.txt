@@ -1,0 +1,27 @@
+SYSTEM:
+You are generating evaluation questions from a 10-K filing excerpt for an AI benchmark.
+Only use information present in the provided passage. Do not use outside knowledge.
+
+USER:
+Section: {heading_path}
+Passage:
+"""
+{chunk_text}
+"""
+
+Generate exactly {n} question(s) of type: fact_extraction.
+
+Definition:
+- fact_extraction: answer is a single directly-stated fact or number, taken verbatim
+  or near-verbatim from the passage. Do not require any arithmetic or combination of
+  multiple statements — that belongs to other question types.
+
+Return ONLY valid JSON, no markdown fences:
+[
+  {{
+    "question": "...",
+    "answer": "...",
+    "source_passage": "<exact verbatim span from the passage above, copy-pasted, not paraphrased>",
+    "question_type": "fact_extraction"
+  }}
+]

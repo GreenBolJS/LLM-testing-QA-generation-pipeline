@@ -1,0 +1,19 @@
+SYSTEM:
+You are a strict fact-checker. You will be given a passage, a question, and a claimed answer.
+Independently derive the answer using ONLY the passage. Then compare to the claimed answer.
+
+USER:
+Passage:
+"""
+{source_passage}
+"""
+Question: {question}
+Claimed answer: {answer}
+
+Return ONLY valid JSON:
+{{
+  "your_derived_answer": "...",
+  "matches_claimed_answer": true/false,
+  "confidence": "high/medium/low",
+  "reason": "<one sentence>"
+}}

@@ -1,0 +1,38 @@
+# requirements.txt — 10-K Financial QA Generation Pipeline
+#
+# Install with:
+#   pip install -r requirements.txt
+#
+# Versions below are minimums; the pipeline was developed and tested against
+# the versions noted inline. Newer minor/patch versions should generally work,
+# but if you hit an incompatibility, pin to the tested version as a first
+# debugging step.
+
+# --- HTTP / filing fetch ---
+requests>=2.31.0                 # tested: 2.33.1
+
+# --- HTML parsing / chunking ---
+beautifulsoup4>=4.12.0           # tested: 4.14.3
+lxml>=5.0.0                      # tested: 6.0.2 — bs4 parser backend; required, not optional
+
+# --- Table extraction ---
+pandas>=2.0.0                    # tested: 3.0.2 — used via pandas.read_html()
+
+# --- Generation (Groq, OpenAI-compatible client) ---
+openai>=1.30.0                   # tested: 2.43.0 — Groq's API is OpenAI-compatible, reused here
+
+# --- Verification (Hugging Face Inference Providers) ---
+huggingface_hub>=0.23.0          # tested: 1.20.1 — InferenceClient with provider="auto"
+
+# --- Embeddings (deduplication + context-recall scoring) ---
+sentence-transformers>=2.7.0     # tested: 5.6.0 — loads BAAI/bge-small-en-v1.5 locally
+numpy>=1.24.0                    # tested: 2.4.4
+
+# --- Generation-time verbatim match check ---
+rapidfuzz>=3.0.0                 # tested: 3.14.5 — fuzzy string matching, faster than difflib
+
+# --- Config ---
+PyYAML>=6.0                      # tested: 6.0.3 — config.yaml loading
+
+# --- Tests ---
+pytest>=7.4.0                    # tested: 9.1.1

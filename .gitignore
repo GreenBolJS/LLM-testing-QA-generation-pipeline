@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables / secrets — never commit real API keys
+.env
+*.env.local
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+
+# Project-specific: large, regenerable intermediate data.
+# These are re-created by pipeline.py on every run (raw filing cache,
+# intermediate chunk/table JSON) — no need to version them.
+data/raw/
+data/chunks/
+
+# NOTE: output/ is intentionally NOT ignored — the spec's deliverable
+# (sample output dataset generated from one real 10-K) lives there and
+# needs to be committed.

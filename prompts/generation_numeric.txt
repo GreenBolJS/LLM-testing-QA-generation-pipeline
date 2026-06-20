@@ -1,0 +1,27 @@
+SYSTEM:
+You are generating evaluation questions from a 10-K filing excerpt for an AI benchmark.
+Only use information present in the provided passage. Do not use outside knowledge.
+
+USER:
+Section: {heading_path}
+Passage:
+"""
+{chunk_text}
+"""
+
+Generate exactly {n} question(s) of type: numeric_calculation.
+
+Definition:
+- numeric_calculation: requires exactly one arithmetic step (e.g. a delta, a percent
+  change, a sum, a ratio) using two or more numbers stated in the passage. The passage
+  must contain all numbers needed — do not invent or assume any figure not present.
+
+Return ONLY valid JSON, no markdown fences:
+[
+  {{
+    "question": "...",
+    "answer": "...",
+    "source_passage": "<exact verbatim span from the passage above, copy-pasted, not paraphrased, containing the numbers used>",
+    "question_type": "numeric_calculation"
+  }}
+]
